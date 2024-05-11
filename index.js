@@ -28,6 +28,11 @@ async function run() {
 
     const producesCollection = client.db('fashionDB').collection('produces');
 
+    app.get('/produces', async (req, res) =>{
+      const cursor = producesCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
 
     app.post('/produces', async(req, res)=>{
       const newProduces = req.body;
@@ -35,6 +40,9 @@ async function run() {
       const result = await producesCollection.insertOne(newProduces)
       res.send(result)
     })
+    
+
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
