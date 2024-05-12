@@ -27,6 +27,7 @@ async function run() {
     await client.connect();
 
     const producesCollection = client.db('fashionDB').collection('produces');
+    const recommendCollection = client.db('fashionDB').collection('recommend');
 
     app.get('/produces', async (req, res) =>{
       const cursor = producesCollection.find()
@@ -40,7 +41,25 @@ async function run() {
       const result = await producesCollection.insertOne(newProduces)
       res.send(result)
     })
-    
+
+    // myProduct
+
+    app.get('/produces', async (req, res) =>{
+      let query = {}
+      if (req.query?.email) {
+        query = {email: req.query.email} 
+      }
+      const result = await producesCollection.find(query).toArray()
+      console.log(result);
+      res.send(result)
+    })
+
+        // Recommend data save
+        app.post('/recommend', async (req, res) => {
+          const recommendData = req.body
+          const result = await recommendCollection.insertOne(recommendData)
+          res.send(result)
+        })
 
 
     // Send a ping to confirm a successful connection
