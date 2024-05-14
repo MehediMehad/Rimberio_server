@@ -30,16 +30,18 @@ async function run() {
     const recommendCollection = client.db('fashionDB').collection('recommend');
     
     
-    app.post('/produces', async(req, res)=>{
+    app.post('/Addproduces', async(req, res)=>{
       const newProduces = req.body;
       console.log(newProduces);
       const result = await producesCollection.insertOne(newProduces)
       res.send(result)
     })
 
-    // my user
+    // get data spastic user
     app.get('/myProduces/:email', async (req, res) =>{
-      const result = await producesCollection.find({email: req.paramsemail}).toArray()
+      const email = req.params.email
+      const query = {'addedUser.email':email}
+      const result = await producesCollection.find(query).toArray()
       res.send(result)
     })
 
@@ -56,6 +58,28 @@ async function run() {
       const result = await producesCollection.deleteOne(query)
       res.send(result);
     })
+    // update
+        // Update
+        app.get("/item/:id", async (req, res) => {
+          const id = req.params.id;
+          const query = { _id: new ObjectId(id) };
+          const result = await producesCollection.findOne(query);
+          res.send(result);
+        });
+        //reason, productTitle, photo, name, brand,
+        app.put("/item/:id", async (req, res) => {
+          const id = req.params.id;
+          const itemData = req.body
+          const query = { _id: new ObjectId(id) };
+          const options = { upsert: true };
+          const itemDoc = {
+            $set: {
+              ...itemData
+            },
+          };
+          const result = await producesCollection.updateOne(query, itemDoc, options )
+          res.send(result);
+        });
 
     
 
@@ -67,19 +91,26 @@ async function run() {
       })
 
       // get 
-      // app.get('/recommend/:email', async (req, res) =>{
-      //   const email = req.params.email
-      //   const query = {'recommendedUser.email':email}
-      //   const result = await recommendCollection.find(query).toArray()
-      //   res.send(result)
-      // })
+      app.get('/recommend/:email', async (req, res) =>{
+        const email = req.params.email
+        const query = {'recommendedUser.email':email}
+        const result = await recommendCollection.find(query).toArray()
+        res.send(result)
+      })
 
       app.get('/recommend', async (req, res) =>{
         const cursor = recommendCollection.find()
         const result = await cursor.toArray()
         res.send(result)
       })
-      // delete
+      // delete recommend
+      app.delete('/deleteRecommend/:id', async (req, res)=> {
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await recommendCollection.deleteOne(query)
+        res.send(result);
+      })
+      
 
 
 
