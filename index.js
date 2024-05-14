@@ -1,12 +1,22 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://cardoctor-bd.web.app",
+      "https://cardoctor-bd.firebaseapp.com",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 
@@ -23,13 +33,20 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
 
     const producesCollection = client.db('fashionDB').collection('produces');
     const recommendCollection = client.db('fashionDB').collection('recommend');
-    
-    
+
+    // jwt Generate
+    app.post('/jwt', async(req, res) =>{
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn:'365d'
+      })
+
+    })
+
+    // get all data 
     app.post('/Addproduces', async(req, res)=>{
       const newProduces = req.body;
       console.log(newProduces);
