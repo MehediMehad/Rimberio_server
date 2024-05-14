@@ -24,17 +24,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const producesCollection = client.db('fashionDB').collection('produces');
     const recommendCollection = client.db('fashionDB').collection('recommend');
-
-    app.get('/produces', async (req, res) =>{
-      const cursor = producesCollection.find()
-      const result = await cursor.toArray()
-      res.send(result)
-    })
-
+    
+    
     app.post('/produces', async(req, res)=>{
       const newProduces = req.body;
       console.log(newProduces);
@@ -42,17 +37,27 @@ async function run() {
       res.send(result)
     })
 
-    // myProduct
-
-    app.get('/produces', async (req, res) =>{
-      let query = {}
-      if (req.query?.email) {
-        query = {email: req.query.email} 
-      }
-      const result = await producesCollection.find(query).toArray()
-      console.log(result);
+    // my user
+    app.get('/myProduces/:email', async (req, res) =>{
+      const result = await producesCollection.find({email: req.paramsemail}).toArray()
       res.send(result)
     })
+
+
+    app.get('/produces', async (req, res) => {
+      const cursor = producesCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+    // delete
+    app.delete('/deleteProduces/:id', async (req, res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await producesCollection.deleteOne(query)
+      res.send(result);
+    })
+
+    
 
       // Recommend data save
       app.post('/recommend', async (req, res) => {
@@ -74,15 +79,12 @@ async function run() {
         const result = await cursor.toArray()
         res.send(result)
       })
-      app.delete('/recommend/:id', async (req, res) =>{
-        const id = req.params.id
-        const query = {_id: new ObjectId(id)}
-        const result = await cursor.toArray()
-        res.send(result)
-      })
+      // delete
+
+
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
